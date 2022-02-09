@@ -16,4 +16,11 @@ namespace MHRSLiteEntity.Enums
         Bay,
         Bayan
     }
+
+    public enum RoleNames:byte
+    {
+        Passive,
+        Admin
+    }
+
 }
