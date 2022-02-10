@@ -138,5 +138,56 @@ namespace MHRSLiteUI.Controllers
 
         }
 
+        [HttpGet]
+        public async Task<IActionResult> ConfirmEmail(string userId, string code)
+        {
+            try
+            {
+                if (userId==null || code==null)
+                {
+                    return NotFound("Sayfa Bulunamadı..");
+                }
+                var user = await _userManager.FindByIdAsync(userId);
+                if (user==null)
+                {
+                    return NotFound("Kullanıcı Bulunamadı..");
+                }
+
+                code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(code));
+
+                var result =await _userManager.ConfirmEmailAsync(user, code);
+                if (result.Succeeded)
+                {
+                    //user pasif rolde mi
+                    if (_userManager.IsInRoleAsync(user,RoleNames.Passive.ToString()).Result)
+                    {
+                        await _userManager.RemoveFromRoleAsync(user, RoleNames.Passive.ToString());
+                        await _userManager.AddToRoleAsync(user, RoleNames.Patient.ToString());
+                        
+                    }
+
+                    TempData["EmailConfirmedMessage"] = "Hesabınız Aktifleşmiştir..";
+
+                    return RedirectToAction("Login", "Account");
+
+                }
+                ViewBag.EmailConfirmedMessage = "Hesap Aktifleştirme İşlemi Başarısızdır!..";
+
+                return View();
+
+
+            }
+            catch (Exception ex)
+            {
+                ViewBag.EmailConfirmedMessage = "Beklenmedik Bir Hata Oluştu..Tekrar Deneyini...";
+
+                return View();
+            }
+        }
+
+
+
+
+
     }
 }
