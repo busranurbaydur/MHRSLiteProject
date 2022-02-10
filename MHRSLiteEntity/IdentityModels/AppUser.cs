@@ -11,9 +11,12 @@ namespace MHRSLiteEntity.IdentityModels
 {
     public class AppUser:IdentityUser
     {
-        [StringLength(50)]
+        [StringLength(50,MinimumLength =2,ErrorMessage ="Adınız en az 2, en çok 50 karakter olmalıdır..")]
+        [Required(ErrorMessage ="Adınız Gereklidir..")]
         public string Name { get; set; }
-        [StringLength(50)]
+
+        [StringLength(50, MinimumLength = 2, ErrorMessage = "Soyadınız en az 2, en çok 50 karakter olmalıdır..")]
+        [Required(ErrorMessage = "Soyadınız Gereklidir..")]
         public string Surname { get; set; }
 
         [DataType(DataType.DateTime)]
@@ -23,6 +26,8 @@ namespace MHRSLiteEntity.IdentityModels
 
         [DataType(DataType.Date)]
         public DateTime? BirthDate { get; set; }
+
+        [Required(ErrorMessage = "Lütfen Cinsiyetinizi Seçiniz..")]
         public Genders Gender { get; set; }
 
     }
