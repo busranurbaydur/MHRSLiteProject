@@ -3,6 +3,7 @@ using MHRSLiteEntity;
 using MHRSLiteEntity.Enums;
 using MHRSLiteEntity.IdentityModels;
 using MHRSLiteUI.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
@@ -185,9 +186,55 @@ namespace MHRSLiteUI.Controllers
             }
         }
 
+        [HttpGet]
+        public IActionResult Login()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Login(LoginViewModel model)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    ModelState.AddModelError("", "Veri Girişleri Düzgün Olmaıdır..");
+                    return View();
+
+                }
 
 
+                var result = await _signInManager.PasswordSignInAsync(model.UserName,model.Password,model.RememberMe,true);
 
+                if (result.Succeeded)
+                {
+                    return RedirectToAction("Index", "Home");
+
+                }
+                else
+                {
+                    ModelState.AddModelError("", "Kullanıcı Adınız veya Şifreniz Hatalıdır...");
+                    return View();
+                }
+
+
+            }
+            catch (Exception)
+            {
+
+                ModelState.AddModelError("", "Beklenmedik Bir Hata Oldu mlsf...");
+                return View();
+            }
+        }
+
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> Logout()
+        {
+            await _signInManager.SignOutAsync();
+            return RedirectToAction("Index", "Home");
+        }
 
     }
 }
