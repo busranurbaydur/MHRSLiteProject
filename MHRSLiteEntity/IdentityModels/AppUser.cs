@@ -1,4 +1,5 @@
 ﻿using MHRSLiteEntity.Enums;
+using MHRSLiteEntity.Models;
 using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
@@ -29,6 +30,12 @@ namespace MHRSLiteEntity.IdentityModels
 
         [Required(ErrorMessage = "Lütfen Cinsiyetinizi Seçiniz..")]
         public Genders Gender { get; set; }
+
+        //doktor tab ilişki kuruldu
+        public virtual List<Doctor> Doctors { get; set; }
+
+        //hasta tab ilişki kuruldu
+        public virtual List<Patient> Patients { get; set; }
 
     }
 }
