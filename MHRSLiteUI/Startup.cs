@@ -42,7 +42,7 @@ namespace MHRSLiteUI
             services.AddScoped<IEmailSender, EmailSender>();
 
            
-            services.AddControllersWithViews();
+            services.AddControllersWithViews().AddRazorRuntimeCompilation();//calýþýrken razor sayfasýnda yapýlan deðiþikliklerin sayfaya yansýmasý için ekledik.
 
 
             services.AddRazorPages();

@@ -1,7 +1,9 @@
-﻿using MHRSLiteBusiness.EmailService;
+﻿using MHRSLiteBusiness.Contracts;
+using MHRSLiteBusiness.EmailService;
 using MHRSLiteEntity;
 using MHRSLiteEntity.Enums;
 using MHRSLiteEntity.IdentityModels;
+using MHRSLiteEntity.Models;
 using MHRSLiteUI.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -23,15 +25,17 @@ namespace MHRSLiteUI.Controllers
         private readonly SignInManager<AppUser> _signInManager;
         private readonly RoleManager<AppRole> _roleManager;
         private readonly IEmailSender _emailSender;
+        private readonly IUnitOfWork _unitOfWork;
         public AccountController(
             UserManager<AppUser> userManager,
             SignInManager<AppUser> signInManager,
-            RoleManager<AppRole> roleManager, IEmailSender emailSender)
+            RoleManager<AppRole> roleManager, IEmailSender emailSender, IUnitOfWork unitOfWork)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _roleManager = roleManager;
             _emailSender = emailSender;
+            _unitOfWork = unitOfWork;
             CheckRoles();
         }
 
@@ -69,11 +73,11 @@ namespace MHRSLiteUI.Controllers
                 {
                     return View();
                 }
-                var checkUserForUserName = await _userManager.FindByNameAsync(model.UserName);
+                var checkUserForUserName = await _userManager.FindByNameAsync(model.TCNumber);
 
                 if (checkUserForUserName != null)
                 {
-                    ModelState.AddModelError(nameof(model.UserName), "Bu kullanıcı adı zaten sistemde kayıt vardır..");
+                    ModelState.AddModelError(nameof(model.TCNumber), "Bu kullanıcı adı zaten sistemde kayıt vardır..");
                     return View(model);
                 }
 
@@ -102,7 +106,9 @@ namespace MHRSLiteUI.Controllers
                 var result = await _userManager.CreateAsync(newUser, model.Password);
                 if (result.Succeeded)
                 {
-                    var roleResult = _userManager.AddToRoleAsync(newUser, RoleNames.Patient.ToString());
+                    var roleResult =await _userManager.AddToRoleAsync(newUser, RoleNames.Patient.ToString());
+                    //patient tablosuna ekleme yapılmalıdır..
+                    
                 }
                 else
                 {
@@ -128,6 +134,18 @@ namespace MHRSLiteUI.Controllers
                 };
 
                await _emailSender.SendAsync(emailMessage);
+
+                Patient newPatient = new Patient()
+                {
+                    TCNumber = model.TCNumber,
+                    UserId = newUser.Id
+                };
+                if (_unitOfWork.PatientRepository.Add(newPatient) == false)
+                {
+                    //sistem yöneticisine email gitsin..
+
+
+                }
                 return RedirectToAction("Login", "Account");
 
             }
