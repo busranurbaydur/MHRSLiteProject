@@ -9,13 +9,13 @@ using System.Threading.Tasks;
 
 namespace MHRSLiteBusiness.Implementations
 {
-    public class CityRepository : Repository<City>, ICityRepository
+    public class HospitalRepository : Repository<Hospital>, IHospitalRepository
     {
        
-        public CityRepository(MyContext myContext)
-            : base(myContext)
+        public HospitalRepository(MyContext myContext) : base(myContext)
         {
-
+            
         }
     }
 }
+

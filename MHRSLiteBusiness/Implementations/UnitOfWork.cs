@@ -18,6 +18,12 @@ namespace MHRSLiteBusiness.Implementations
             CityRepository = new CityRepository(_myContext);
             DistrictRepository = new DistrictRepository(_myContext);
             DoctorRepository = new DoctorRepository(_myContext);
+            PatientRepository = new PatientRepository(_myContext);
+            HospitalRepository = new HospitalRepository(_myContext);
+            ClinicRepository = new ClinicRepository(_myContext);
+            HospitalClinicRepository = new HospitalClinicRepository(_myContext);
+            AppointmentRepository = new AppointmentRepository(_myContext);
+            AppointmentHourRepository = new AppointmentHourRepository(_myContext);
         }
 
         public ICityRepository CityRepository { get; private set; }
@@ -25,6 +31,18 @@ namespace MHRSLiteBusiness.Implementations
         public IDistrictRepository DistrictRepository { get; private set; }
 
         public IDoctorRepository DoctorRepository { get; private set; }
+
+        public IPatientRepository PatientRepository { get; private set; }
+
+        public IHospitalRepository HospitalRepository { get; private set; }
+
+        public IClinicRepository ClinicRepository { get; private set; }
+
+        public IHospitalClinicRepository HospitalClinicRepository { get; private set; }
+
+        public IAppointmentRepository AppointmentRepository { get; private set; }
+
+        public IAppointmentHourRepository AppointmentHourRepository { get; private set; }
 
         public void Dispose()
         {
