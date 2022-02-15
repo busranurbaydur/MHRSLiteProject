@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,16 +27,18 @@ namespace MHRSLiteUI.Controllers
         private readonly RoleManager<AppRole> _roleManager;
         private readonly IEmailSender _emailSender;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IConfiguration _configuration;
         public AccountController(
             UserManager<AppUser> userManager,
             SignInManager<AppUser> signInManager,
-            RoleManager<AppRole> roleManager, IEmailSender emailSender, IUnitOfWork unitOfWork)
+            RoleManager<AppRole> roleManager, IEmailSender emailSender, IUnitOfWork unitOfWork, IConfiguration configuration)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _roleManager = roleManager;
             _emailSender = emailSender;
             _unitOfWork = unitOfWork;
+            _configuration = configuration;
             CheckRoles();
         }
 
@@ -71,21 +74,18 @@ namespace MHRSLiteUI.Controllers
             {
                 if (!ModelState.IsValid)
                 {
-                    return View();
-                }
-                var checkUserForUserName = await _userManager.FindByNameAsync(model.TCNumber);
-
-                if (checkUserForUserName != null)
-                {
-                    ModelState.AddModelError(nameof(model.TCNumber), "Bu kullanıcı adı zaten sistemde kayıt vardır..");
                     return View(model);
                 }
-
+                var checkUserForUserName = await _userManager.FindByNameAsync(model.TCNumber);
+                if (checkUserForUserName != null)
+                {
+                    ModelState.AddModelError(nameof(model.TCNumber), "Bu TCKimlik zaten sistemde kayıtlıdır.");
+                    return View(model);
+                }
                 var checkUserForEmail = await _userManager.FindByEmailAsync(model.Email);
-
                 if (checkUserForEmail != null)
                 {
-                    ModelState.AddModelError(nameof(model.UserName), "Bu email sistemde kayıtlıdır....");
+                    ModelState.AddModelError(nameof(model.Email), "Bu email zaten sistemde kayıtlıdır!");
                     return View(model);
                 }
 
@@ -96,32 +96,26 @@ namespace MHRSLiteUI.Controllers
                     Email = model.Email,
                     Name = model.Name,
                     Surname = model.Surname,
-                    UserName = model.UserName,
-                    //TODO : birthdate
-                    Gender=model.Gender
+                    UserName = model.TCNumber,
+                    Gender = model.Gender
+                    //TODO: Birthdate?
+                    //TODO: Phone Number?
                 };
 
 
-                //rol atadık yeni kişiye..hasta rolüü
+                //rol atadık yeni kişiye..pasif rolüü
                 var result = await _userManager.CreateAsync(newUser, model.Password);
                 if (result.Succeeded)
                 {
-                    var roleResult =await _userManager.AddToRoleAsync(newUser, RoleNames.Patient.ToString());
+                    var roleResult =await _userManager.AddToRoleAsync(newUser, RoleNames.Passive.ToString());
                     //patient tablosuna ekleme yapılmalıdır..
                     
                 }
-                else
-                {
-                    ModelState.AddModelError("", "Beklenmedik Bir Hata Oluştu!");
-
-                    return View(model);
-                }
 
                 //email gönderilecekk
-
+                
                 var code = await _userManager.GenerateEmailConfirmationTokenAsync(newUser);
                 code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-
                 var callBackUrl = Url.Action("ConfirmEmail", "Account", new { userId = newUser.Id, code = code }, protocol: Request.Scheme);
 
                 //email service ve appsetting işlemleri yapıldı geri dönüldü buraya
@@ -129,21 +123,30 @@ namespace MHRSLiteUI.Controllers
                 var emailMessage = new EmailMessage()
                 {
                     Contacts = new string[] { newUser.Email },
-                    Subject ="MHRSLITE - Email Aktivasyonu",
-                    Body=$"Merhaba {newUser.Name} {newUser.Surname}, <br/> Hesabınızı Aktifleştirmek İçin <a href='{HtmlEncoder.Default.Encode(callBackUrl)}>buraya</a> tıklayınız.."
+                    Subject = "MHRSLITE - Email Aktivasyonu",
+                    Body = $"Merhaba {newUser.Name} {newUser.Surname}, <br/>Hesabınızı aktifleştirmek için <a href='{HtmlEncoder.Default.Encode(callBackUrl)}'>buraya</a> tıklayınız."
                 };
 
-               await _emailSender.SendAsync(emailMessage);
+               
+                await _emailSender.SendAsync(emailMessage);
 
                 Patient newPatient = new Patient()
                 {
                     TCNumber = model.TCNumber,
                     UserId = newUser.Id
                 };
+
+                // user kaydolurken hata olduysa yöneticiye mail gitsin diye yazıldı
                 if (_unitOfWork.PatientRepository.Add(newPatient) == false)
                 {
-                    //sistem yöneticisine email gitsin..
-
+                    var emailMessageToAdmin = new EmailMessage()
+                    {
+                        Contacts =new string[] { _configuration.GetSection("ManegerEmails:Email").Value },
+                        CC= new string[] { _configuration.GetSection("ManegerEmails:EmailToCC").Value },
+                        Subject = "MHRSLITE - HATA ! PAtient Tablosu",
+                        Body = $"Aşağıdaki bilgilere sahip kişi eklenirken hata olmuş..PAtient tablosuna ait bilgileri ekleyiniz..<br/> Bilgiler : TC Number : {model.TCNumber} <br/> UserId : {newUser.Id}"
+                    };
+                   await _emailSender.SendAsync(emailMessageToAdmin);
 
                 }
                 return RedirectToAction("Login", "Account");

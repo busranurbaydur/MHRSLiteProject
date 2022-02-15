@@ -8,8 +8,8 @@ namespace MHRSLiteUI.Models
 {
     public class LoginViewModel
     {
-        [Display(Name = "Kullanıcı Adı")]
-        [Required(ErrorMessage = "Kullanıcı adı alanı gereklidir")]
+        [Display(Name = "TC Kimlik Numaranız")]
+        [Required(ErrorMessage = "TC Kimlik alanı gereklidir")]
         public string UserName { get; set; }
 
 
