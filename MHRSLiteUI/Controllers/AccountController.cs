@@ -220,11 +220,20 @@ namespace MHRSLiteUI.Controllers
             {
                 if (!ModelState.IsValid)
                 {
-                    ModelState.AddModelError("", "Veri Girişleri Düzgün Olmaıdır..");
-                    return View();
+                    ModelState.AddModelError("", "Veri Girişleri Düzgün Olmalıdır..");
+                    return View(model);
 
                 }
-
+                //user ı bulup emailconfirmed kontrol edelim.
+                var user = await _userManager.FindByNameAsync(model.UserName);
+                if (user!=null)
+                {
+                    if (user.EmailConfirmed==false)
+                    {
+                        ModelState.AddModelError("", "Sistemi kullanabilmeniz için üyeliğinizi aktifleştirmeniz gerekmektedir. Emailinize gönderilen aktivasyon linkine tıklayarak aktifleştirme işlemini yapabilirsiniz!"); 
+                        return View(model);
+                    }
+                }
 
                 var result = await _signInManager.PasswordSignInAsync(model.UserName,model.Password,model.RememberMe,true);
 
@@ -283,8 +292,11 @@ namespace MHRSLiteUI.Controllers
 
                     var emailMessage = new EmailMessage()
                     {
-                        Subject="MHRSLITE - Şifremi unuttum hk.",
-                        Body=$"Merhaba {user.Name} {user.Surname}, </br>Yeni parola belirlemek için  <a href='{HtmlEncoder.Default.Encode(callBackUrl)}>buraya </a>tıklayınız."
+                        Contacts = new string[] { user.Email },
+                        Subject = "MHRSLITE - Şifremi unuttum",
+                        Body = $"Merhaba {user.Name} {user.Surname}," +
+                        $" <br/>Yeni parola belirlemek için" +
+                        $" <a href='{HtmlEncoder.Default.Encode(callBackUrl)}'>buraya</a> tıklayınız. "
                     };
                     await _emailSender.SendAsync(emailMessage);
                     ViewBag.ResetPasswordMessage = "Emailinize şifre güncelleme yönergesi gönderilmiştir.";
@@ -305,7 +317,8 @@ namespace MHRSLiteUI.Controllers
         {
             if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(code))
             {
-                return BadRequest("deneme");
+                ModelState.AddModelError(string.Empty, "Kullanıcı bulunamadı");
+                return View();
             }
 
             ViewBag.UserId = userId;
