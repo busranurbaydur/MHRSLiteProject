@@ -1,6 +1,7 @@
 ﻿using MHRSLiteBusiness.Contracts;
 using MHRSLiteBusiness.EmailService;
 using MHRSLiteEntity.IdentityModels;
+using MHRSLiteEntity.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -11,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace MHRSLiteUI.Controllers
 {
-    public class CityController : Controller
+    public class HospitalController : Controller
     {
         //Global alan
         private readonly UserManager<AppUser> _userManager;
@@ -22,7 +23,7 @@ namespace MHRSLiteUI.Controllers
         private readonly IConfiguration _configuration;
 
         //Dependency Injection
-        public CityController(
+        public HospitalController(
             UserManager<AppUser> userManager,
             SignInManager<AppUser> signInManager,
             RoleManager<AppRole> roleManager,
@@ -38,18 +39,29 @@ namespace MHRSLiteUI.Controllers
             _configuration = configuration;
         }
 
-        public JsonResult GetCityDistricts(int id)
+
+        public JsonResult GetHospitalFromClinicId(int id, int districtid)
         {
             try
             {
-                var data = _unitOfWork.DistrictRepository
-                    .GetAll(x => x.CityId == id, orderBy: x => x.OrderBy(y => y.DistrictName));
+                var data = new List<Hospital>();
+                if (id > 0 && districtid > 0)
+                {
+                    data = _unitOfWork.HospitalClinicRepository
+                        .GetAll(x => x.ClinicId == id)
+                        .Select(y =>
+                        y.Hospital)
+                        .Where(x => x.DistrictId == districtid)
+                        .Distinct().ToList();
+                }
                 return Json(new { isSuccess = true, data });
+
             }
-            catch (Exception ex)
+            catch (Exception)
             {
 
                 return Json(new { isSuccess = false });
+
             }
         }
 

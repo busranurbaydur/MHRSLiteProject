@@ -17,10 +17,12 @@ namespace MHRSLiteEntity.Enums
         Bayan
     }
 
-    public enum RoleNames:byte
+    public enum RoleNames : byte
     {
         Passive,
         Admin,
-        Patient
+        Patient,
+        PassiveDoctor,
+        ActiveDoctor
     }
 }

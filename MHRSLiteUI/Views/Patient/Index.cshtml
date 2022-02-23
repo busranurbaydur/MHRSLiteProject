@@ -4,18 +4,20 @@
     Layout = "~/Views/Shared/_LayoutMHRS.cshtml";
 }
 
-<div class="row">
-    <div class="col-md-4">
+<div>
+    <div class="row">
+        <div class="col-md-4">
         <button asp-controller="Patient" asp-action="Appointment" class="btn btn-block btn-default" style="color:white; background-color:#A7161A; height:100px; margin:auto 0; border-radius:20px;">
             <i class="fa fa-h-square" aria-hidden="true" style="transform:scale(3); float:left; margin-left: 40px; margin-top:10px"></i>
             <span style="font-weight: bold">Hastane Randevusu Al</span><br />
             <span style="font-size:12px;">Kliniklerinden Randevu Alabilirsiniz</span>
         </button>
+         </div>
+    <div class="col-md-7" style="padding-top:30px;">
+        @await Component.InvokeAsync("PatientAppointments")
     </div>
-    <div class="col-md-8">
+
 
     </div>
-
-
 </div>
 

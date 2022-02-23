@@ -25,6 +25,9 @@ namespace MHRSLiteBusiness.EmailService
         public string Smtp => _configuration.GetSection("EmailOptions:Smtp").Value;
         public int SmtpPort =>Convert.ToInt32( _configuration.GetSection("EmailOptions:SmtpPort").Value);
 
+        public string CC => _configuration.GetSection("ManegerEmails:EmailToCC").Value;
+            
+
         public async Task SendAsync(EmailMessage message)
         {
             //kimden gönderileceğini sectik..
@@ -44,6 +47,17 @@ namespace MHRSLiteBusiness.EmailService
             if (message.CC!=null)
             {
                 foreach (var item in message.CC)
+                {
+                    mail.CC.Add(new MailAddress(item));
+                }
+
+            }
+
+            //cc
+            if (CC != null)
+            {
+                var ccData = CC.Split(',');
+                foreach (var item in ccData)
                 {
                     mail.CC.Add(new MailAddress(item));
                 }
