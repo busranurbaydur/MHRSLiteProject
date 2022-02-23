@@ -1,7 +1,6 @@
 ﻿using MHRSLiteBusiness.Contracts;
 using MHRSLiteBusiness.EmailService;
 using MHRSLiteEntity.IdentityModels;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -12,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace MHRSLiteUI.Controllers
 {
-    public class PatientController : Controller
+    public class CityController : Controller
     {
         private readonly UserManager<AppUser> _userManager;
 
@@ -21,7 +20,7 @@ namespace MHRSLiteUI.Controllers
         private readonly IEmailSender _emailSender;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IConfiguration _configuration;
-        public PatientController(
+        public CityController(
             UserManager<AppUser> userManager,
             SignInManager<AppUser> signInManager,
             RoleManager<AppRole> roleManager, IEmailSender emailSender, IUnitOfWork unitOfWork, IConfiguration configuration)
@@ -32,38 +31,26 @@ namespace MHRSLiteUI.Controllers
             _emailSender = emailSender;
             _unitOfWork = unitOfWork;
             _configuration = configuration;
-           
+
         }
 
-
-        [Authorize]
         public IActionResult Index()
         {
-            try
-            {
-                return View();
-            }
-            catch (Exception)
-            {
-
-                return View();
-            }
+            return View();
         }
 
-        public IActionResult Appointment()
+        public JsonResult GetCityDistricts(int id)
         {
             try
             {
-                ViewBag.Cities = _unitOfWork.CityRepository.GetAll(orderBy:x=>x.OrderBy(a=>a.CityName));
-
-                ViewBag.Clinics = _unitOfWork.ClinicRepository.GetAll(orderBy: x => x.OrderBy(a => a.ClinicName));
-
-                return View();
+                var data = _unitOfWork.DistrictRepository
+                    .GetAll(x => x.CityId == id, orderBy: x => x.OrderBy(y => y.DistrictName));
+                return Json(new { isSuccess = true, data });
             }
             catch (Exception ex)
             {
 
-                return View();
+                return Json(new { isSuccess = false });
             }
         }
     }

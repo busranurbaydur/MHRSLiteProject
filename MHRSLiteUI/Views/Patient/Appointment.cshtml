@@ -17,24 +17,43 @@
                 <select id="CitySelect" name="City" class="form-control">
                     <option selected value="0">**İl Seçiniz**</option>
 
-                   @foreach (var item in ViewBag.Cities)
-                   {
-                       <option value="@item.Id">@item.CityName</option>
-                   }
+                    @foreach (var item in ViewBag.Cities)
+                    {
+                        <option value="@item.Id">@item.CityName</option>
+                    }
 
+                </select>
+
+            </div>
+
+
+            <div class="form-group">
+                <span class="text-danger" style="font-weight:bold;margin-right:3px"> * </span>
+                <label for="District" style="font-weight:bold">İLÇE</label>
+                <select id="DistrictSelect" name="District" class="form-control">
+                    <option selected value="0">***İlçe Seçiniz***</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <span class="text-danger" style="font-weight:bold;margin-right:3px"> * </span>
+                <label for="Clinic" style="font-weight:bold">KLİNİK</label>
+                <select id="ClinicSelect" name="Clinic" class="form-control">
+                    <option selected value="0">***Klinik Seçiniz***</option>
+                    @foreach (var item in ViewBag.Clinics)
+                    {
+                        <option value="@item.Id">@item.ClinicName</option>
+}
                 </select>
 
             </div>
 
             <div class="form-group">
                 <span class="text-danger" style="font-weight:bold;margin-right:3px"> * </span>
-                <label for="District" style="font-weight:bold">İLÇE</label>
-                <select name="District" class="form-control">
-                    <option value="1">Bay</option>
-                    <option value="2">Bayan</option>
-
+                <label for="Hospital" style="font-weight:bold">İLÇE</label>
+                <select id="DistrictSelect" name="District" class="form-control">
+                    <option selected value="0">***İlçe Seçiniz***</option>
                 </select>
-
             </div>
         </form>
 
