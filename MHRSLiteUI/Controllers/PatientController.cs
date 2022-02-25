@@ -305,22 +305,24 @@ namespace MHRSLiteUI.Controllers
         }
 
         [Authorize]
-        public IActionResult SaveAppointment(int hcid, string date,
+        public JsonResult SaveAppointment(int hcid, string date,
             string hour)
         {
+            var message = string.Empty;
             try
             {
-
+                
                 // aynı tarihe ve saate başka randevusu var mı?
+                 message= $"{date} - {hour} tarihinde bir kliniğe zaten randevu almışsınız. Aynı tarih ve saate başka randevu alınamaz!";
                 DateTime appointmentDate = Convert.ToDateTime(date);
                 if (_unitOfWork.AppointmentRepository
                     .GetFirstOrDefault(x => x.AppointmentDate == appointmentDate
                     && x.AppointmentHour == hour) != null)
                 {
                     // aynı tarihe ve saate başka randevusu var
-                    TempData["SaveAppointmentStatus"] =
-                        $"{date} - {hour} tarihinde bir kliniğe zaten randevu almışsınız. Aynı tarih ve saate başka randevu alınamaz!";
-                    return RedirectToAction("Index", "Patient");
+                    
+                        
+                    return Json(new { isSuccess = false, message });
 
                 }
 
@@ -335,17 +337,29 @@ namespace MHRSLiteUI.Controllers
                 };
                 bool result = _unitOfWork.AppointmentRepository.Add(patientAppoinment);
 
-                TempData["SaveAppointmentStatus"] =
-                    result ? "Randevunuz başarıyla kaydolmuştur."
-                           : "HATA: Beklenmedik bir sorun oluştu!";
-                return RedirectToAction("Index", "Patient");
+                //message = result ?
+                //     Json(new { isSuccess = true, message }) : 
+                //     Json(new { isSuccess = false, message });
+
+                if (result)
+                {
+                    message =
+                    "Randevunuz başarıyla kaydolmuştur.";
+                    return Json(new { isSuccess = true, message });
+                }
+                else
+                {
+                    message =
+                    "HATA: Beklenmedik bir sorun oluştu!";
+                    return Json(new { isSuccess = false, message });
+                }
 
             }
             catch (Exception ex)
             {
 
-                TempData["SaveAppointmentStatus"] = "HATA: " + ex.Message;
-                return RedirectToAction("Index", "Patient");
+                 message = "HATA: " + ex.Message;
+                return Json(new { isSuccess = false, message });
             }
         }
     }

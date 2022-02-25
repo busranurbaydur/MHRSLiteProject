@@ -49,16 +49,14 @@
                                     <div class="card-body">
                                         @foreach (var subitem in item.Hours)
                                         {
-                                            <a asp-controller="Patient"
-                                               asp-action="SaveAppointment"
-                                               asp-route-hcid="@item.HospitalClinicId"
-                                               asp-route-date="@DateTime.Now.AddDays(1).ToShortDateString()"
-                                               asp-route-hour="@subitem"
-                                               class="btn btn-primary" style="width:100px;">
-                                                @subitem
-                                            </a>
+                                        <button type="button"
+                                                onclick="SaveAppointment(@item.HospitalClinicId, '@DateTime.Now.AddDays(1).ToShortDateString()', '@subitem', '@ViewBag.Doctor')"
+                                                class="btn btn-primary" style="width:100px;">
+                                            @subitem
+                                        </button>
 
                                         }
+
                                     </div>
                                 </div>
                             </div>
@@ -71,3 +69,50 @@
     </div>
 </div>
 
+@section Scripts{ 
+
+<script>
+    var SaveAppointment = function (hcid, date, hour,dr) {
+
+        console.log(hcid);
+        console.log(date);
+        console.log(hour);
+
+        Swal.fire({
+            title: dr + ' Randevunuzu Onaylıyor Musunuz ?',
+            showDenyButton: false,
+            showCancelButton: true,
+            confirmButtonText: 'Onayla',
+            canselButtonText:'İptal'
+        }).then((result) => {
+            /* Read more about isConfirmed, isDenied below */
+            if (result.isConfirmed) {
+
+                $.ajax({
+                    type: "GET",
+                    url: '/Patient/SaveAppointment?hcid=' + hcid + '&date=' +date+ '&hour='+ hour,
+                    success: function (res) {
+                        Swal.fire({
+                            title: res.message,
+                            showDenyButton: false,
+                            showCancelButton: false
+                        }).then((result) => {
+                            window.open("/Patient/Index", "_self");
+                        })
+                    },
+                    error: function (err) {
+                        console.log(err);
+                    },
+                });
+                
+            }
+            // else if (result.isDenied) {
+            //    Swal.fire('Changes are not saved', '', 'info')
+            //}
+        });
+
+    };
+</script>
+
+
+}
