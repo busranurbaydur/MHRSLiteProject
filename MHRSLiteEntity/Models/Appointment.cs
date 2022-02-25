@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MHRSLiteEntity.Enums;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -21,6 +22,10 @@ namespace MHRSLiteEntity.Models
         [Required]
         [StringLength(5, MinimumLength = 5, ErrorMessage = "Randevu saati XX:XX şeklinde olmalıdır!")]
         public string AppointmentHour { get; set; } //10:00
+
+        public AppointmentStatus AppointmentStatus { get; set; }
+
+
         [ForeignKey("PatientId")]
         public virtual Patient Patient { get; set; }
         [ForeignKey("HospitalClinicId")]

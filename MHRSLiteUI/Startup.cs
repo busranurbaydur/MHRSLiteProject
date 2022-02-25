@@ -2,7 +2,9 @@ using MHRSLiteBusiness.Contracts;
 using MHRSLiteBusiness.EmailService;
 using MHRSLiteBusiness.Implementations;
 using MHRSLiteDataAccess;
+using MHRSLiteEntity.Enums;
 using MHRSLiteEntity.IdentityModels;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -40,8 +42,15 @@ namespace MHRSLiteUI
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             //IEmailSender gördüðün zaman bana EmailSender nesnesi üret!
             services.AddScoped<IEmailSender, EmailSender>();
+            services.AddScoped<IClaimsTransformation, ClaimProvider.ClaimProvider>();
 
-           
+            services.AddAuthorization(opts =>
+            {
+                opts.AddPolicy("GenderPolicy", policy =>
+                 policy.RequireClaim("gender", Genders.Bayan.ToString())
+                );
+            });
+
             services.AddControllersWithViews().AddRazorRuntimeCompilation();//calýþýrken razor sayfasýnda yapýlan deðiþikliklerin sayfaya yansýmasý için ekledik.
 
 
@@ -63,6 +72,8 @@ namespace MHRSLiteUI
                 .Password.RequireDigit = false;
                 opts.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._";
             }).AddDefaultTokenProviders().AddEntityFrameworkStores<MyContext>();
+
+
         }
 
 

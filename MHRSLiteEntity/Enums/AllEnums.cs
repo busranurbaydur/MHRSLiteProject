@@ -25,4 +25,11 @@ namespace MHRSLiteEntity.Enums
         PassiveDoctor,
         ActiveDoctor
     }
+
+    public enum AppointmentStatus : byte
+    {
+        Active,
+        Past,
+        Cansel
+    }
 }
