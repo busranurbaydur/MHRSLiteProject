@@ -4,6 +4,7 @@
     Layout = "~/Views/Shared/_LayoutMHRS.cshtml";
 }
 
+
 <div class="row">
 
     @* Randevu al ve geri butonu *@
@@ -82,12 +83,10 @@
             var $dropdown = $("#HospitalSelect");
             $dropdown.empty();
             $dropdown.append("<option selected value='0'>***Hastane Seçiniz***</option>");
-
             //İl değiştiğinde clinic resetlensin
             $('#ClinicSelect')
                 .val(0)
                 .trigger('change');
-
             //hangi ilin seçili olduğunu değişkene aldık
             var cityId = this.value;
             //il combosundan seçilien değer sıfırdan büyükse
@@ -98,7 +97,6 @@
                     type: "GET",
                     url: '/City/GetCityDistricts/' + cityId,
                     success: function (res) {
-
                         var $dropdown = $("#DistrictSelect");
                         $dropdown.empty();
                         $dropdown.append("<option selected value='0'>***İlçe Seçiniz***</option>");
@@ -114,7 +112,6 @@
                 });
             }
         });
-
         // İlçe combodan ilçe seçildiğinde bu fonk çalışacak
         // change event
         $('#DistrictSelect').on('change', function () {
@@ -129,7 +126,6 @@
                 .val(0)
                 .trigger('change');
         });
-
         //İller ve Klinik ViewBag ile sayfaya geliyor bu nedenle bu comboların içini boşaltmıyoruz. Sadece ilk değerini seçili hale getiriyoruz.
         // Klinik seçildiğinde bu fonk çalışacak (change event)
         $('#ClinicSelect').on('change', function () {
@@ -158,7 +154,6 @@
                     },
                 });
             }
-
         });
         // Hastane seçildiğinde bu fonk. çalışacak. (change event)
         $('#HospitalSelect').on('change', function () {
@@ -183,22 +178,17 @@
             var cid = $("#ClinicSelect").val();
             //seçili hekimin idsi
             //var dr = $('DoctorSelect').val();
-
             //yeni pencerede müsait randevular listelenecek.
             //il* , ilçe, klinik*, hastane, hekim
             //window.open(
             //    '/Patient/FindAppointment?cityid=' + cityid
             //    + '&distid=' + distid +
             //    '&cid='+ cid+ '&hid='+ hid+ '&dr='+ dr);
-
             window.open(
                 '/Patient/FindAppointment?cityid=' + cityid
                 + '&distid=' + distid +
                 '&cid=' + cid + '&hid=' + hid,
                 "_self");
-
-
         });
-
     </script>
 }

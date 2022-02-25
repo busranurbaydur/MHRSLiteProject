@@ -9,10 +9,9 @@ namespace MHRSLiteUI.Models
     public class AvailableDoctorAppointmentViewModel
     {
         public string DoctorTCNumber { get; set; }
-        public Doctor Doctor  { get; set; }
-        public int HospitalClinicId  { get; set; }
+        public Doctor Doctor { get; set; }
+        public int HospitalClinicId { get; set; }
         public HospitalClinic HospitalClinic { get; set; }
-
         public int ClinicId { get; set; }
         public Clinic Clinic { get; set; }
         public int HospitalId { get; set; }
