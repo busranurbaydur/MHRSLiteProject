@@ -1,9 +1,11 @@
+using AutoMapper;
 using MHRSLiteBusiness.Contracts;
 using MHRSLiteBusiness.EmailService;
 using MHRSLiteBusiness.Implementations;
 using MHRSLiteDataAccess;
 using MHRSLiteEntity.Enums;
 using MHRSLiteEntity.IdentityModels;
+using MHRSLiteEntity.Mappings;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -43,6 +45,8 @@ namespace MHRSLiteUI
             //IEmailSender gördüðün zaman bana EmailSender nesnesi üret!
             services.AddScoped<IEmailSender, EmailSender>();
             services.AddScoped<IClaimsTransformation, ClaimProvider.ClaimProvider>();
+
+            services.AddAutoMapper(typeof(Maps));
 
             services.AddAuthorization(opts =>
             {

@@ -30,6 +30,6 @@ namespace MHRSLiteEntity.Enums
     {
         Active,
         Past,
-        Cansel
+        Cancelled
     }
 }

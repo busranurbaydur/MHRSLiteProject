@@ -25,15 +25,21 @@
                             <h6 style="color: white;">Hastanede bulunan kliniklerden randevu alabilirsiniz.</h6>
                         </div>
                     </a>
+                    <a asp-controller="Home" asp-action="Deneme" class="btn btn-primary" style="width:100px;">
+                        Deneme Claims
+                    </a>
+
                 </div>
             </div>
             <div class="col-md-7" style="padding-top:30px;">
-                @await Component.InvokeAsync("PatientAppointments")
+                @await Component.InvokeAsync("PatientAppointments",
+               new
+                    {
+                        pageNumberPast = ViewBag.PageNumberPast,
+                    pageNumberFuture = ViewBag.PageNumberFuture
+                   })
 
             </div>
-
-
-
         </div>
     </div>
 </div>

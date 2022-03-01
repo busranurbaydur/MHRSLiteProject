@@ -1,5 +1,8 @@
-﻿using MHRSLiteBusiness.Contracts;
+﻿using AutoMapper;
+using MHRSLiteBusiness.Contracts;
 using MHRSLiteDataAccess;
+using MHRSLiteEntity.IdentityModels;
+using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +14,8 @@ namespace MHRSLiteBusiness.Implementations
     public class UnitOfWork : IUnitOfWork
     {
         private readonly MyContext _myContext;
+        private readonly IMapper _mapper;
+        private readonly UserManager<AppUser> _userManager;
         public UnitOfWork(MyContext myContext)
         {
             _myContext = myContext;
@@ -22,7 +27,8 @@ namespace MHRSLiteBusiness.Implementations
             HospitalRepository = new HospitalRepository(_myContext);
             ClinicRepository = new ClinicRepository(_myContext);
             HospitalClinicRepository = new HospitalClinicRepository(_myContext);
-            AppointmentRepository = new AppointmentRepository(_myContext);
+            AppointmentRepository =
+                new AppointmentRepository(_myContext, _mapper, _userManager);
             AppointmentHourRepository = new AppointmentHourRepository(_myContext);
         }
 
