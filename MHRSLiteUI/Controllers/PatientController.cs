@@ -384,6 +384,7 @@ namespace MHRSLiteUI.Controllers
         [Authorize]
         public JsonResult CancelAppointment(int id)
         {
+            
             var message = string.Empty;
             try
             {
@@ -424,7 +425,7 @@ namespace MHRSLiteUI.Controllers
         {
             try
             {
-                DataTable dt = new DataTable();
+                DataTable dt = new DataTable("Grid");
                 var patientId = HttpContext.User.Identity.Name;
                 var data = _unitOfWork.AppointmentRepository
                                 .GetUpComingAppointments(patientId);
