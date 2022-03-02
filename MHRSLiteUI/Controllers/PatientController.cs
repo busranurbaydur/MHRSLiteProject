@@ -2,6 +2,7 @@
 using MHRSLiteBusiness.Contracts;
 using MHRSLiteBusiness.EmailService;
 using MHRSLiteEntity;
+using MHRSLiteEntity.Constants;
 using MHRSLiteEntity.Enums;
 using MHRSLiteEntity.IdentityModels;
 using MHRSLiteEntity.Models;
@@ -324,12 +325,35 @@ namespace MHRSLiteUI.Controllers
                 if (_unitOfWork.AppointmentRepository
                     .GetFirstOrDefault(x => x.AppointmentDate == appointmentDate
                     && x.AppointmentHour == hour
-                    && x.AppointmentStatus!=AppointmentStatus.Cancelled) != null)
+                    &&
+                    x.AppointmentStatus != AppointmentStatus.Cancelled
+                    ) != null)
                 {
                     // aynı tarihe ve saate başka randevusu var
                     message = $"{date} - {hour} tarihinde bir kliniğe zaten randevu almışsınız. Aynı tarih ve saate başka randevu alınamaz!";
                     return Json(new { isSuccess = false, message });
                 }
+
+                #region RomatologyAppointment_ClaimsCheck
+                // Eğer romatoloji randevusu istenmiş ise
+                var hcidData = _unitOfWork.HospitalClinicRepository
+                                    .GetFirstOrDefault(x =>
+                                        x.Id == hcid,
+                                        includeProperties: "Hospital,Clinic,Doctor");
+                if (hcidData.Clinic.ClinicName == ClinicsConstants.ROMATOLOGY)
+                {
+                    //claim kontrolü yapılacak
+                    string resultMessage =
+                        AvailabilityMessageForRomatologyAppointment(hcidData);
+
+                    if (!string.IsNullOrEmpty(resultMessage))
+                    {
+                        return Json(new { isSuccess = false, message = resultMessage });
+                    }
+                }
+
+                #endregion
+
 
                 // randevu kayıt edilecek
                 Appointment patientAppoinment = new Appointment()
@@ -379,6 +403,55 @@ namespace MHRSLiteUI.Controllers
 
                 message = "HATA: " + ex.Message;
                 return Json(new { isSuccess = false, message });
+            }
+        }
+
+        private string AvailabilityMessageForRomatologyAppointment(HospitalClinic hcidData)
+        {
+            try
+            {
+                string returnMessage = string.Empty;
+                //usera ait aspnetuserclaims tablosunda kayıt varsa o kayıtlardan
+                //Dahiliye-Romatoloji kaydının valuesu alınacak.
+                var claimList = HttpContext.User.Claims.ToList();
+                var claim = claimList.FirstOrDefault(x =>
+                x.Type == "DahiliyeRomatoloji");
+                if (claim != null)
+                {
+                    //2_dd.MM.yyyy
+                    var claimValue = claim.Value;
+                    //yöntem 1
+                    int claimHCID = Convert.ToInt32(
+                        claimValue.Substring(0, claimValue.IndexOf('_')));
+                    DateTime claimDate = Convert.ToDateTime(
+                        claimValue.Substring(claimValue.IndexOf('_') + 1).ToString());
+                    //yöntem 2
+                    //string[] array = claimValue.Split('_');
+                    //int claimHCID = Convert.ToInt32(array[0]);
+                    //DateTime claimDate = Convert.ToDateTime(array[1].ToString());
+
+                    var claimHCIDdata = _unitOfWork.HospitalClinicRepository
+                                       .GetFirstOrDefault(x =>
+                                       x.Id == claimHCID,
+                                       includeProperties: "Hospital");
+
+                    //Claim bilgiler ayıklandı
+                    //Acaba ayıklanan bilgilerdeki hastane ile randevu alınmak istenen hastane aynı mı değil mi?
+                    if (hcidData.Hospital.Id != claimHCIDdata.Hospital.Id)
+                    {
+                        returnMessage = $"Romatoloji için dahilye muayenesi şarttır. Romatoloji randevusu alabileceğiniz uygun hastane: {claimHCIDdata.Hospital.HospitalName}";
+                    }
+                }
+                else
+                {
+                    returnMessage = "DİKKAT! Romatolojiye randevu alabilmeniz için Dahiliyede son bir ay içinde muayene olmuş olmanız gereklidir!";
+                }
+                return returnMessage;
+            }
+            catch (Exception)
+            {
+
+                throw;
             }
         }
 
