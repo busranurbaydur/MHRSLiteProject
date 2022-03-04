@@ -194,13 +194,13 @@ namespace MHRSLiteBusiness.Implementations
                              on a.HospitalClinicId equals hcid.Id
                              join c in _myContext.Clinics
                              on hcid.ClinicId equals c.Id
-                             where c.ClinicName == ClinicsConstants.INTERNAL_MEDICINE && a.AppointmentStatus != AppointmentStatus.Cancelled
+                             where c.ClinicName == ClinicsConstants.INTERNAL_MEDICINE && a.AppointmentStatus != AppointmentStatus.Past
                              select a;
                
 
                 if (dt!=null)
                 {
-                    var date = Convert.ToDateTime(dt.Value.ToShortDateString());
+                    var date = Convert.ToDateTime(dt.Value.ToString("dd/MM/yyyy"));
                     result = result.Where(x => x.AppointmentDate >= date);
 
                 }

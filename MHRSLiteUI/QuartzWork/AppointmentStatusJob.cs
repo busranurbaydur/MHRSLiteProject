@@ -9,39 +9,58 @@ using System.Threading.Tasks;
 
 namespace MHRSLiteUI.QuartzWork
 {
-
+    [DisallowConcurrentExecution]
     public class AppointmentStatusJob : IJob
     {
         private readonly ILogger<AppointmentStatusJob> _logger;
         private readonly IUnitOfWork _unitOfWork;
-        public AppointmentStatusJob(ILogger<AppointmentStatusJob> logger, IUnitOfWork unitOfWork)
+        public AppointmentStatusJob(
+            ILogger<AppointmentStatusJob> logger,
+            IUnitOfWork unitOfWork)
         {
             _logger = logger;
             _unitOfWork = unitOfWork;
         }
         public Task Execute(IJobExecutionContext context)
         {
-            var appointments = _unitOfWork.AppointmentRepository.GetAll(x => x.AppointmentStatus == AppointmentStatus.Active);
-            foreach (var item in appointments)
+            try
             {
-
-                int itemHour = Convert.ToInt32(item.AppointmentHour.Substring(0, 2));
-
-                int itemMinute = Convert.ToInt32(item.AppointmentHour.Substring(3, 2));
-
-                if (item.AppointmentDate < DateTime.Now 
-                    ||(item.AppointmentDate.ToShortDateString() ==DateTime.Now.ToShortDateString()
-                    &&(itemHour < DateTime.Now.Hour 
-                    ||(itemHour == DateTime.Now.Hour 
-                    && itemMinute < DateTime.Now.Minute))))
+                //Apointment tablosundaki aktif randevuların hepsini getirsin
+                //Tarihi geçmiş olanları past statüsüne çeksin
+                var appointments = _unitOfWork.AppointmentRepository
+                            .GetAll(x =>
+                            x.AppointmentStatus == AppointmentStatus.Active)
+                            .ToList();
+                foreach (var item in appointments)
                 {
-                    item.AppointmentStatus = AppointmentStatus.Past;
+                    //09:30
+                    int itemHour = Convert.ToInt32(
+                        item.AppointmentHour.Substring(0, 2));
 
-                    _unitOfWork.AppointmentRepository.Update(item);
+                    int itemMinute = Convert.ToInt32(
+                        item.AppointmentHour.Substring(3, 2));
+
+                    if (item.AppointmentDate < DateTime.Now
+                        ||
+                        (item.AppointmentDate.ToShortDateString() ==
+                            DateTime.Now.ToShortDateString()
+                            &&
+                            (itemHour < DateTime.Now.Hour || (itemHour == DateTime.Now.Hour && itemMinute < DateTime.Now.Minute))))
+                    {
+                        item.AppointmentStatus = AppointmentStatus.Past;
+                        _unitOfWork.AppointmentRepository
+                            .Update(item);
+                    }
                 }
+                _logger.LogInformation("AppointmentStatus updated");
+                return Task.CompletedTask;
+
             }
-            _logger.LogInformation("AppointmentStatus updated");
-            return Task.CompletedTask;
+            catch (Exception ex)
+            {
+                //loglanacak
+                return Task.CompletedTask;
+            }
         }
     }
 }

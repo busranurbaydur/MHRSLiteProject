@@ -43,23 +43,23 @@ namespace MHRSLiteUI.Controllers
         }
 
         //ilk rolleri vermek için burayı yazdık.
-        private void CheckRoles()
-        {
+        //private void CheckRoles()
+        //{
             
-            var allRoles = Enum.GetNames(typeof(RoleNames));
-            foreach (var item in allRoles)
-            {
-                if (!_roleManager.RoleExistsAsync(item).Result)
-                {
-                    var result = _roleManager.CreateAsync(new AppRole()
-                    {
-                        Name = item,
-                        Description = item
-                    }).Result;
+        //    var allRoles = Enum.GetNames(typeof(RoleNames));
+        //    foreach (var item in allRoles)
+        //    {
+        //        if (!_roleManager.RoleExistsAsync(item).Result)
+        //        {
+        //            var result = _roleManager.CreateAsync(new AppRole()
+        //            {
+        //                Name = item,
+        //                Description = item
+        //            }).Result;
 
-                }
-            }
-        }
+        //        }
+        //    }
+        //}
 
         [HttpGet]
         public IActionResult Register()

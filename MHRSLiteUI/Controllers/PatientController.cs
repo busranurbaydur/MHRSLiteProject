@@ -413,9 +413,15 @@ namespace MHRSLiteUI.Controllers
                 string returnMessage = string.Empty;
                 //usera ait aspnetuserclaims tablosunda kayıt varsa o kayıtlardan
                 //Dahiliye-Romatoloji kaydının valuesu alınacak.
-                var claimList = HttpContext.User.Claims.ToList();
-                var claim = claimList.FirstOrDefault(x =>
-                x.Type == "DahiliyeRomatoloji");
+                //var claimList = HttpContext.User.Claims.ToList();
+                //var claim = claimList.FirstOrDefault(x =>
+                //x.Type == "DahiliyeRomatoloji");
+
+
+                var user = _userManager.FindByNameAsync(HttpContext.User.Identity.Name).Result;
+                var claimList = _userManager.GetClaimsAsync(user).Result;
+                var claim = claimList.FirstOrDefault(x => x.Type == "DahiliyeRomatoloji");
+
                 if (claim != null)
                 {
                     //2_dd.MM.yyyy
