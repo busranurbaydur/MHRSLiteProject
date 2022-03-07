@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 namespace MHRSLiteBusiness.Implementations
 {
     public class AppointmentRepository : Repository<Appointment>,
-         IAppointmentRepository
+           IAppointmentRepository
     {
         //Global alan
         private readonly IMapper _mapper;
@@ -177,9 +177,8 @@ namespace MHRSLiteBusiness.Implementations
                 throw;
             }
         }
-
         /// <summary>
-        /// verilen tarihten büyük ve iptal edilmemiş olan dahiliye randevularını getirir..
+        /// Verilen tarihten büyük olan iptal edilmemiş geçmiş DAHİLİYE randevularını getirir.
         /// </summary>
         /// <param name="dt"></param>
         /// <returns></returns>
@@ -188,32 +187,37 @@ namespace MHRSLiteBusiness.Implementations
             try
             {
                 List<AppointmentVM> data = new List<AppointmentVM>();
-
                 var result = from a in _myContext.Appointments
                              join hcid in _myContext.HospitalClinics
                              on a.HospitalClinicId equals hcid.Id
                              join c in _myContext.Clinics
                              on hcid.ClinicId equals c.Id
-                             where c.ClinicName == ClinicsConstants.INTERNAL_MEDICINE && a.AppointmentStatus != AppointmentStatus.Past
+                             where c.ClinicName
+                             == ClinicsConstants.INTERNAL_MEDICINE
+                             && a.AppointmentStatus == AppointmentStatus.Past
                              select a;
-               
-
-                if (dt!=null)
+                if (dt != null)
                 {
+                    //burası
                     var date = Convert.ToDateTime(dt.Value.ToString("dd/MM/yyyy"));
                     result = result.Where(x => x.AppointmentDate >= date);
-
                 }
+
                 foreach (var item in result)
                 {
-                    item.Patient = _myContext.Patients.FirstOrDefault(x => x.TCNumber == item.PatientId);
-
-                    item.Patient.AppUser = _userManager.FindByNameAsync(item.PatientId).Result;
+                    item.Patient = _myContext.Patients.FirstOrDefault(x =>
+                                    x.TCNumber == item.PatientId);
+                    //appuser --> tcnumber username olarak appuserda kayıtlıdır
+                    item.Patient.AppUser =
+                        _userManager
+                        .FindByNameAsync(item.PatientId).Result;
                 }
 
-                data = _mapper.Map<List<Appointment>, List<AppointmentVM>>(result.ToList());
-                return data;
+                data =
+                  _mapper.Map<List<Appointment>, List<AppointmentVM>>
+                  (result.ToList());
 
+                return data;
             }
             catch (Exception)
             {
@@ -221,5 +225,6 @@ namespace MHRSLiteBusiness.Implementations
                 throw;
             }
         }
+
     }
 }

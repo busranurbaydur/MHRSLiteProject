@@ -126,6 +126,7 @@ namespace MHRSLiteUI.Controllers
                                 x.AppointmentDate == (
                                 Convert.ToDateTime(DateTime.Now.AddDays(1).ToShortDateString())) &&
                                 x.AppointmentHour == houritem
+
                                 ) == 0)
                             {
 
@@ -197,7 +198,8 @@ namespace MHRSLiteUI.Controllers
                     (x.AppointmentDate > DateTime.Now.AddDays(-1)
                     &&
                     x.AppointmentDate < DateTime.Now.AddDays(2)
-                    &&x.AppointmentStatus!=AppointmentStatus.Cancelled)
+                    )
+                    && x.AppointmentStatus != AppointmentStatus.Cancelled
                     ).ToList();
 
                 foreach (var houritem in hours)
@@ -414,13 +416,13 @@ namespace MHRSLiteUI.Controllers
                 //usera ait aspnetuserclaims tablosunda kayıt varsa o kayıtlardan
                 //Dahiliye-Romatoloji kaydının valuesu alınacak.
                 //var claimList = HttpContext.User.Claims.ToList();
-                //var claim = claimList.FirstOrDefault(x =>
-                //x.Type == "DahiliyeRomatoloji");
-
-
+                //var claim = claimList.FirstOrDefault(x=>
+                //x.Type=="DahiliyeRomatoloji");
                 var user = _userManager.FindByNameAsync(HttpContext.User.Identity.Name).Result;
                 var claimList = _userManager.GetClaimsAsync(user).Result;
-                var claim = claimList.FirstOrDefault(x => x.Type == "DahiliyeRomatoloji");
+                var claim = claimList.FirstOrDefault(x =>
+                x.Type == "DahiliyeRomatoloji");
+
 
                 if (claim != null)
                 {
@@ -464,7 +466,6 @@ namespace MHRSLiteUI.Controllers
         [Authorize]
         public JsonResult CancelAppointment(int id)
         {
-            
             var message = string.Empty;
             try
             {

@@ -51,9 +51,9 @@ namespace MHRSLiteUI
                     q.UseMicrosoftDependencyInjectionScopedJobFactory();
 
                     // Register the job, loading the schedule from configuration
-                    q.AddJobAndTrigger<AppointmentStatusJob>(hostContext.Configuration);
-                    q.AddJobAndTrigger<RomatologyClaimJob>(hostContext.Configuration);
-                    //q.AddJobAndTrigger<DenemeJob>(hostContext.Configuration);
+                    //q.AddJobAndTrigger<AppointmentStatusJob>(hostContext.Configuration);
+                    //q.AddJobAndTrigger<RomatologyClaimJob>(hostContext.Configuration);
+                   // q.AddJobAndTrigger<DenemeJob>(hostContext.Configuration);
                 });
 
                 services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
