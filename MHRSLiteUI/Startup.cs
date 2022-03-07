@@ -60,13 +60,21 @@ namespace MHRSLiteUI
 
 
             services.AddControllersWithViews()
-                .AddRazorRuntimeCompilation(); //Çalýþýrken razor sayfasýnda yapýlan deðiþikliklerin sayfaya yansýmasý için eklendi. 
+                .AddRazorRuntimeCompilation(); //Çalýþýrken razor sayfasında yapilan deðiþikliklerin sayfaya yansimasi için eklendi. 
             services.AddRazorPages();
             services.AddMvc();
             services.AddSession(options =>
             {
                 options.IdleTimeout = TimeSpan.FromSeconds(60);
             });
+
+            //google apiden alınan client ıd ve secret buraya yazıldı..
+            services.AddAuthentication().AddGoogle(options => 
+            { 
+                options.ClientId = Configuration["Authentication:Google:ClientId"];
+                options.ClientSecret = Configuration["Authentication:Google:ClientSecret"];
+            });
+
 
             //**********************
             services.AddIdentity<AppUser, AppRole>(opts =>

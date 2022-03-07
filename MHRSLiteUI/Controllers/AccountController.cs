@@ -338,5 +338,10 @@ namespace MHRSLiteUI.Controllers
             }
         }
 
+
+        //public IActionResult GoogleLogin(string ReturnUrl)
+        //{
+
+        //}
     }
 }
